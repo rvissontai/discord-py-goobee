@@ -38,5 +38,8 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send('Hummm, não conheço esse comando, na dúvida manda um .help pra ver os comandos')
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send('Pong! {0}ms'.format(round(bot.latency * 1000, 0)))
 
 bot.run(configuracao.obter_env('DISCORD-TOKEN'))
