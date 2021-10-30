@@ -1,8 +1,8 @@
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads)
 
-# discord-py-bot-amoux
+# discord-py-bot-goobee
 
-Amoux é um discord bot para integração com Gooble Teams para facilitar o gerenciamento diário de práticas ágeis.
+Goobee é um discord bot para integração com Gooble Teams para facilitar o gerenciamento diário de práticas ágeis.
 
 ## Instalação
 
@@ -12,16 +12,28 @@ Instalar python 3.9 ou superior.
 
 Pelo prompt de comando (cmd), navegue até o diretório do projeto, e digite 
 
+Windows:
 ```bash
 python -m venv venv
+```
+
+Linux:
+```bash
+python3 -m venv venv
 ```
 
 para gerar o ambiente virtual.
 
 Ainda no prompt de comando, inicialize o ambiente virtual 
 
+Windows:
 ```bash
 call venv\Scripts\activate
+```
+
+Linux:
+```bash
+source venv\bin\activate
 ```
 
 Você verá o texto (venv) no promt de comando antes do diretório.

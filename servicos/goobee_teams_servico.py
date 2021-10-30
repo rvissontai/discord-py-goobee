@@ -5,6 +5,7 @@ import datetime
 
 from database import Usuarios
 from database import HumorDiario
+from utilidades.data import data
 from utilidades.parser_helper_util import string_para_base64, encontrar_canal_padrao
 
 from comum.enum.enum_humor_response import humor_response
@@ -101,7 +102,7 @@ class goobee_teams_servico():
 
                 header = { 'Authorization': 'Bearer ' + sucesso_response["token"] }
                 param = {
-                    'dia': datetime.datetime.now().isoformat(),
+                    'dia': data.agora().isoformat(),
                     'idTime': sucesso_response["idsTimes"][0],
                     'idResponsavelRegistro': sucesso_response["idPessoa"],
                     'observacao':''

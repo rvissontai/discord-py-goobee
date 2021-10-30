@@ -6,6 +6,7 @@ from servicos.goobee_teams_servico import goobee_teams_servico
 from comum.enum.enum_sentimento import sentimento
 from comum.enum.enum_humor_response import humor_response
 from comum.enum.enum_daily_response import daily_response
+from utilidades.data import data
 
 class goobee_teams(commands.Cog):
     def __init__(self, bot):
@@ -16,7 +17,7 @@ class goobee_teams(commands.Cog):
 
     @tasks.loop(seconds=300.0)
     async def aviso_informe_humor(self):
-        if datetime.datetime.now().hour < 14:
+        if data.agora().hour < 14:
             return
 
         executou_hoje = await self.service.task_informe_humor_executou_hoje()

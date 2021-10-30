@@ -1,10 +1,14 @@
 import os
-import discord 
+import discord
 
 from settings import *
 from discord.ext import commands
+from database import iniciar_database 
+from servicos.dm_servico import dm_servico
 
 bot = commands.Bot(command_prefix = ["?", "."], intents=discord.Intents().all())
+
+iniciar_database()
 
 @bot.event
 async def on_ready():
@@ -22,7 +26,12 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    await bot.process_commands(message)
+    private_message = message.author.dm_channel is not None and message.channel.id == message.author.dm_channel.id
+
+    if private_message: 
+        await dm_servico(bot).handle_private_message(message)
+    else:
+        await bot.process_commands(message)
 
 @bot.event
 async def on_command_error(ctx, error):
