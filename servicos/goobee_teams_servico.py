@@ -18,9 +18,9 @@ from repositorios.task_informe_humor_repositorio import task_informe_humor_repos
 class goobee_teams_servico():
     def __init__(self, bot):
         self.bot = bot
-        self.url_auth = os.getenv('GOOBEE-URL') + os.getenv('GOOBE-ENDPOINT-AUTH')
-        self.url_humor = os.getenv('GOOBEE-URL') + os.getenv('GOOBE-ENDPOINT-HUMOR')
-        self.url_editar_humor = os.getenv('GOOBEE-URL') + os.getenv('GOOBE-ENDPOINT-EDITAR-HUMOR')
+        self.url_auth = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-AUTH')
+        self.url_humor = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-HUMOR')
+        self.url_editar_humor = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-EDITAR-HUMOR')
         self.url_daily = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-DAILY')
         self.humor_diario_repositorio = humor_diario_repositorio()
         self.task_informe_humor_repositorio = task_informe_humor_repositorio()

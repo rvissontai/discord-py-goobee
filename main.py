@@ -39,4 +39,4 @@ async def on_command_error(ctx, error):
         await ctx.send('Hummm, não conheço esse comando, na dúvida manda um .help pra ver os comandos')
 
 
-bot.run(os.getenv('DISCORD-TOKEN'))
+bot.run(configuracao.obter_env('DISCORD-TOKEN'))
