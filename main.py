@@ -33,10 +33,6 @@ async def on_message(message):
     else:
         await bot.process_commands(message)
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.send('Hummm, não conheço esse comando, na dúvida manda um .help pra ver os comandos')
 
 @bot.command()
 async def ping(ctx):

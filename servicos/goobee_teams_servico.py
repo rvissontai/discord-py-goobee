@@ -25,8 +25,10 @@ class goobee_teams_servico():
         self.humor_diario_repositorio = humor_diario_repositorio()
         self.task_informe_humor_repositorio = task_informe_humor_repositorio()
 
+
     async def autenticar(self, user, senha):
         return requests.post(self.url_auth, data=None, json={'usuario': user, 'senha': senha }, timeout=10)
+
 
     async def add_humor(self, idDiscord, id_sentimento):
         try:
@@ -74,6 +76,7 @@ class goobee_teams_servico():
         except Exception as e:
             print(e)
             return humor_response.erro_alterar_humor
+
 
     async def obter_sentimento_diario(self, token, id_pessoa):
         response = requests.get(
@@ -123,6 +126,7 @@ class goobee_teams_servico():
             print(e)
             return daily_response.erro_realizar_daily
 
+
     async def encriptar_autenticacao(self, login, password):
         return {
             "login": string_para_base64(login),
@@ -166,6 +170,7 @@ class goobee_teams_servico():
         #     return await self.process_browser_logs_for_network_events(logs)
         # except Exception as ex:
         #     print(ex)
+
 
     # async def process_browser_logs_for_network_events(self, logs):
     #     result = {}

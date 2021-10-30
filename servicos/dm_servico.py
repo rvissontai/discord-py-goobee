@@ -31,7 +31,7 @@ class dm_servico():
 
     async def goobee_teste_autenticacao(self, message, args):
         try:
-            await message.channel.send("Vou confirmar no goobeteams se a suas credencias estão corretas, isso pode demorar alguns segundos...")
+            await message.channel.send("Vou confirmar no goobeteams se as suas credencias estão corretas, isso pode demorar alguns segundos...")
 
             encripted = await self.goobee_service.encriptar_autenticacao(args.login, args.senha)
 

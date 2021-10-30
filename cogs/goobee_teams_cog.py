@@ -99,7 +99,7 @@ class goobee_teams(commands.Cog):
 
         if (response == daily_response.erro_usuario_nao_existe):
             await mensagem.edit(content = 'Você ainda não me informou suas credenciais, enviei uma mensagem privada pra você, é só seguir as instruções por lá.')
-            await ctx.author.send('Agora é só me falar seu email e senha em uma única mensagem beleza? fica tranquilo que não sou X9. \n ex: -s goobe -l eu@email.com -p senha123')     
+            await ctx.author.send('Agora é só me falar seu email e senha em uma única mensagem beleza? fica tranquilo que não sou X9. \n ex: --login eu@email.com --senha senha123')     
             return
 
 
@@ -125,7 +125,7 @@ class goobee_teams(commands.Cog):
 
         if (response == humor_response.erro_usuario_nao_existe):
             await mensagem.edit(content = 'Você ainda não me informou suas credenciais, enviei uma mensagem privada pra você, é só seguir as instruções por lá.')
-            await ctx.author.send('Agora é só me falar seu email e senha em uma única mensagem beleza? fica tranquilo que não sou X9. \n ex: -s goobe -l eu@email.com -p senha123')     
+            await ctx.author.send('Agora é só me falar seu email e senha em uma única mensagem beleza? fica tranquilo que não sou X9. \n ex: --login eu@email.com --senha senha123')     
             return
 
         if (response == humor_response.timeout):
