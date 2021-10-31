@@ -62,23 +62,11 @@ class goobee_teams(commands.Cog):
     
 
     @commands.command(pass_context=True)
-    async def usuario(self, ctx, *args):
-        try:
-            Usuarios.get(Usuarios.idDiscord == args[0])
-
-            Usuarios.update(login = args[1], senha = args[2]).where(Usuarios.idDiscord == args[0]).returning(Usuarios)
-            await ctx.send('Usuário atualizado')
-        except Usuarios.DoesNotExist:
-            Usuarios.insert(idDiscord=args[0], login=args[1], senha=args[2]).execute()
-            await ctx.send('Usuário importado')
-
-
-    @commands.command(pass_context=True)
     async def login(self, ctx, arg):
         user = Usuarios.get(Usuarios.idDiscord == arg)
         response = await self.service.autenticar(user.login, user.senha)
         
-        await ctx.send(str(response.status_code))
+        await ctx.send(str(response.text))
 
 
     @commands.command(pass_context=True)

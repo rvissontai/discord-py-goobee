@@ -1,6 +1,14 @@
+import os
 import peewee
+from peewee import PostgresqlDatabase
 
-banco = peewee.SqliteDatabase('database.db')
+#banco = peewee.SqliteDatabase('database.db')
+banco = PostgresqlDatabase(
+    os.getenv('POSTGRE-DATABASE'),
+    user=os.getenv('POSTGRE-USER'),
+    password=os.getenv('POSTGRE-PASS'), 
+    host=os.getenv('POSTGRE-HOST'), 
+    port=5432)
 
 class BaseModel(peewee.Model):
     class Meta:

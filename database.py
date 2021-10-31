@@ -1,4 +1,4 @@
-import peewee
+import peewee 
 from entidades.barrel import *
 
 def iniciar_database():
