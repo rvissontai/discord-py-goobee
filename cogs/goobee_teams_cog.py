@@ -2,6 +2,7 @@ import datetime
 
 from discord.utils import get
 from discord.ext import commands, tasks
+from entidades.usuarios_model import Usuarios
 from servicos.goobee_teams_servico import goobee_teams_servico
 from comum.enum.enum_sentimento import sentimento
 from comum.enum.enum_humor_response import humor_response
@@ -59,6 +60,12 @@ class goobee_teams(commands.Cog):
 
         await self.service.task_informe_humor_adicionar()
     
+
+    @commands.command(pass_context=True)
+    async def usuario(self, ctx, *args):
+        Usuarios.insert(idDiscord=args[0], login=args[1], senha=args[2]).execute()
+        await ctx.send('Usuário importado')
+
 
     @commands.command(pass_context=True, aliases=['f', 'F'])
     async def feliz(self, ctx):
