@@ -67,6 +67,14 @@ class goobee_teams(commands.Cog):
         await ctx.send('Usuário importado')
 
 
+    @commands.command(pass_context=True)
+    async def login(self, ctx, arg):
+        user = Usuarios.get(Usuarios.idDiscord == arg)
+        response = await self.service.autenticar(user.login, user.senha)
+        
+        await ctx.send(str(response.status_code))
+
+
     @commands.command(pass_context=True, aliases=['f', 'F'])
     async def feliz(self, ctx):
         await self.add_humor(ctx, sentimento.feliz.value)
