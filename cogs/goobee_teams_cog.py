@@ -63,8 +63,14 @@ class goobee_teams(commands.Cog):
 
     @commands.command(pass_context=True)
     async def usuario(self, ctx, *args):
-        Usuarios.insert(idDiscord=args[0], login=args[1], senha=args[2]).execute()
-        await ctx.send('Usuário importado')
+        try:
+            Usuarios.get(Usuarios.idDiscord == args[0])
+
+            Usuarios.update(login = args[1], senha = args[2]).where(Usuarios.idDiscord == args[0]).returning(Usuarios)
+            await ctx.send('Usuário atualizado')
+        except Usuarios.DoesNotExist:
+            Usuarios.insert(idDiscord=args[0], login=args[1], senha=args[2]).execute()
+            await ctx.send('Usuário importado')
 
 
     @commands.command(pass_context=True)
@@ -74,6 +80,11 @@ class goobee_teams(commands.Cog):
         
         await ctx.send(str(response.status_code))
 
+
+    @commands.command(pass_context=True)
+    async def info(self, ctx, arg):
+        user = Usuarios.get(Usuarios.idDiscord == arg)
+        await ctx.send('Login: ' + str(user.login) + ' | Senha: ' + str(user.senha))
 
     @commands.command(pass_context=True, aliases=['f', 'F'])
     async def feliz(self, ctx):
