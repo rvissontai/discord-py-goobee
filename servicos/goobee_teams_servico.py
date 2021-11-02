@@ -4,6 +4,7 @@ import os
 import datetime
 
 from database import Usuarios
+from discord.utils import get
 from database import HumorDiario
 from utilidades.data import data
 from utilidades.parser_helper_util import string_para_base64, encontrar_canal_padrao
@@ -17,11 +18,14 @@ from repositorios.task_informe_humor_repositorio import task_informe_humor_repos
 
 class goobee_teams_servico():
     def __init__(self, bot):
+        url = os.getenv('GOOBEE-URL')
+
         self.bot = bot
-        self.url_auth = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-AUTH')
-        self.url_humor = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-HUMOR')
-        self.url_editar_humor = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-EDITAR-HUMOR')
-        self.url_daily = os.getenv('GOOBEE-URL') + os.getenv('GOOBEE-ENDPOINT-DAILY')
+        self.url_auth = url + os.getenv('GOOBEE-ENDPOINT-AUTH')
+        self.url_humor = url + os.getenv('GOOBEE-ENDPOINT-HUMOR')
+        self.url_editar_humor = url + os.getenv('GOOBEE-ENDPOINT-EDITAR-HUMOR')
+        self.url_daily = url + os.getenv('GOOBEE-ENDPOINT-DAILY')
+        self.url_backlog = url + os.getenv('GOOBEE-ENDPOINT-BACKLOG-OBTER')
         self.humor_diario_repositorio = humor_diario_repositorio()
         self.task_informe_humor_repositorio = task_informe_humor_repositorio()
 
@@ -233,9 +237,11 @@ class goobee_teams_servico():
             print(e)        
             return None
 
+    
     async def task_informe_humor_adicionar(self):
         self.task_informe_humor_repositorio.adicionar()
 
+    
     async def task_informe_humor_executou_hoje(self):
         model = self.task_informe_humor_repositorio.obter_hoje()
 
@@ -243,3 +249,33 @@ class goobee_teams_servico():
             return False
 
         return True
+
+    async def aviso_informe_humor(self):
+        membros = []
+        texto = ''
+        usuarios = await self.obter_usuarios_que_nao_informaram_humor()
+
+        for user in usuarios:
+            member = get(self.bot.get_all_members(), id=int(user.idDiscord))
+
+            if member.desktop_status.value != 'offline' or member.mobile_status.value != 'offline':
+                membros.append(member)
+                #texto += member.mention + ', '
+                texto += member.name + ', '
+
+        return texto
+
+
+    async def obter_backlog(self, id_time):
+        user = Usuarios.get()
+        response = await self.autenticar(user.login, user.senha)
+            
+        if(response.status_code == 200):
+            sucesso_response = json.loads(response.text)
+
+            header = { 'Authorization': 'Bearer ' + sucesso_response["token"] }
+            response = requests.get(self.url_backlog + '/' + id_time, headers=header)
+
+            if(response.status_code == 200):
+                sucesso_response = json.loads(response.text)
+                return sucesso_response["resultado"]
