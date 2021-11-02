@@ -1,4 +1,5 @@
 import datetime
+import discord
 
 from discord.utils import get
 from discord.ext import commands, tasks
@@ -14,7 +15,15 @@ class goobee_teams(commands.Cog):
         self.bot = bot
         self.service = goobee_teams_servico(self.bot)
         self.aviso_informe_humor.start()
+        self.atualizar_backlog_presence.start()
         
+
+    @tasks.loop(seconds=300.0)
+    async def atualizar_backlog_presence(self):
+        backlog = await self.service.obter_backlog('449fa100-1e77-46da-a755-67a3519e5923')
+
+        await self.bot.change_presence(activity=discord.Game(name="Backlog: " + backlog))
+
 
     @tasks.loop(seconds=300.0)
     async def aviso_informe_humor(self):
@@ -146,6 +155,11 @@ class goobee_teams(commands.Cog):
             await mensagem.edit(content = ctx.author.mention + ', a API do goobe não está respondendo, timeout ):')
             return
 
+
+    @commands.command(pass_context=True)
+    async def aviso(self, ctx):
+        texto = await self.service.aviso_informe_humor()
+        await ctx.send(texto)
 
 def setup(bot):
     bot.add_cog(goobee_teams(bot))
