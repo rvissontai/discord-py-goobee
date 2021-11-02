@@ -18,7 +18,7 @@ class goobee_teams(commands.Cog):
         self.atualizar_backlog_presence.start()
         
 
-    @tasks.loop(seconds=300.0)
+    @tasks.loop(seconds=43200.0)
     async def atualizar_backlog_presence(self):
         backlog = await self.service.obter_backlog('449fa100-1e77-46da-a755-67a3519e5923')
 
