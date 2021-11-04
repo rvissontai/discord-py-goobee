@@ -42,14 +42,17 @@ class goobee_teams(commands.Cog):
             await self.service.task_informe_humor_adicionar()
             return
             
+        print('Aviso Humor: Hora de executar, iniciando busca de usuários...')
         membros = []
         texto = ''
         usuarios = await self.service.obter_usuarios_que_nao_informaram_humor()
 
+        print('Aviso Humor: Busca realizando, validando quantidae...')
         if usuarios is None or len(usuarios) == 0:
             await self.service.task_informe_humor_adicionar()
             return
 
+        print('Aviso Humor: Encontar IDs dos usuários no Discord...')
         for user in usuarios:
             member = get(self.bot.get_all_members(), id=int(user.idDiscord))
 
@@ -57,16 +60,19 @@ class goobee_teams(commands.Cog):
                 membros.append(member)
                 texto += member.mention + ', '
 
+        print('Aviso Humor: Procurando guilda Alcateia...')
         canal = await self.service.encontrar_canal('Alcateia')
 
         if canal is None:
             return
 
+        print('Aviso Humor: Enviar mensagem na guilda...')
         if len(membros) > 1:
             await canal.send(texto + " como vocês estão se sentindo hoje?")
         elif len(membros) == 1:
             await canal.send(texto + " como está se sentindo hoje?")
 
+        print('Aviso Humor: Definir aviso como endiado...')
         await self.service.task_informe_humor_adicionar()
     
 
