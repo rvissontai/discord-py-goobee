@@ -27,18 +27,23 @@ class goobee_teams(commands.Cog):
 
     @tasks.loop(seconds=300.0)
     async def aviso_informe_humor(self):
+        print('Aviso Humor: Iniciando task...')
+
         if data.agora().hour < 14:
+            print('Aviso Humor: Ainda não são 14h...')
             return
 
         executou_hoje = await self.service.task_informe_humor_executou_hoje()
 
         if(executou_hoje):
+            print('Aviso Humor: Task já executada...')
             return
 
         dia_da_semana = datetime.datetime.today().weekday()
         sexta_feira = 4
 
         if dia_da_semana > sexta_feira:
+            print('Aviso Humor: É final de semana...')
             await self.service.task_informe_humor_adicionar()
             return
             
