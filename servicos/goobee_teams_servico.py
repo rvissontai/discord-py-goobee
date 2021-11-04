@@ -1,17 +1,14 @@
 import requests
 import json
 import os
-import datetime
 
 from database import Usuarios
 from discord.utils import get
-from database import HumorDiario
-from utilidades.data import data
+from utilidades.data import data, data_e_hora
 from utilidades.parser_helper_util import string_para_base64, encontrar_canal_padrao
 
 from comum.enum.enum_humor_response import humor_response
 from comum.enum.enum_daily_response import daily_response
-from servicos.request.informar_humor_request import informar_humor_request
 
 from repositorios.humor_diario_repositorio import humor_diario_repositorio
 from repositorios.task_informe_humor_repositorio import task_informe_humor_repositorio
@@ -109,7 +106,7 @@ class goobee_teams_servico():
 
                 header = { 'Authorization': 'Bearer ' + sucesso_response["token"] }
                 param = {
-                    'dia': data.agora().isoformat(),
+                    'dia': data_e_hora.agora().isoformat(),
                     'idTime': sucesso_response["idsTimes"][0],
                     'idResponsavelRegistro': sucesso_response["idPessoa"],
                     'observacao':''
@@ -224,9 +221,9 @@ class goobee_teams_servico():
         try:
             notificar_usuarios = []
             users = Usuarios.select().execute()
-
+            
             for user in users:
-                humor = self.humor_diario_repositorio.obter(user.idDiscord, datetime.date.today())
+                humor = self.humor_diario_repositorio.obter(user.idDiscord, data.hoje())
 
                 if humor is None:
                     notificar_usuarios.append(user)

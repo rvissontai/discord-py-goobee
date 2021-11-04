@@ -1,4 +1,3 @@
-import datetime
 import discord
 
 from discord.utils import get
@@ -8,7 +7,7 @@ from servicos.goobee_teams_servico import goobee_teams_servico
 from comum.enum.enum_sentimento import sentimento
 from comum.enum.enum_humor_response import humor_response
 from comum.enum.enum_daily_response import daily_response
-from utilidades.data import data
+from utilidades.data import data, data_e_hora
 
 class goobee_teams(commands.Cog):
     def __init__(self, bot):
@@ -27,29 +26,37 @@ class goobee_teams(commands.Cog):
 
     @tasks.loop(seconds=300.0)
     async def aviso_informe_humor(self):
-        if data.agora().hour < 14:
+        print('Aviso Humor: Iniciando task...')
+
+        if data_e_hora.agora().hour < 14:
+            print('Aviso Humor: Ainda não são 14h...')
             return
 
         executou_hoje = await self.service.task_informe_humor_executou_hoje()
 
         if(executou_hoje):
+            print('Aviso Humor: Task já executada...')
             return
 
-        dia_da_semana = datetime.datetime.today().weekday()
+        dia_da_semana = data.hoje().weekday()
         sexta_feira = 4
 
         if dia_da_semana > sexta_feira:
+            print('Aviso Humor: É final de semana...')
             await self.service.task_informe_humor_adicionar()
             return
             
+        print('Aviso Humor: Hora de executar, iniciando busca de usuários...')
         membros = []
         texto = ''
         usuarios = await self.service.obter_usuarios_que_nao_informaram_humor()
 
+        print('Aviso Humor: Busca realizando, validando quantidae...')
         if usuarios is None or len(usuarios) == 0:
             await self.service.task_informe_humor_adicionar()
             return
 
+        print('Aviso Humor: Encontar IDs dos usuários no Discord...')
         for user in usuarios:
             member = get(self.bot.get_all_members(), id=int(user.idDiscord))
 
@@ -57,16 +64,19 @@ class goobee_teams(commands.Cog):
                 membros.append(member)
                 texto += member.mention + ', '
 
+        print('Aviso Humor: Procurando guilda Alcateia...')
         canal = await self.service.encontrar_canal('Alcateia')
 
         if canal is None:
             return
 
+        print('Aviso Humor: Enviar mensagem na guilda...')
         if len(membros) > 1:
             await canal.send(texto + " como vocês estão se sentindo hoje?")
         elif len(membros) == 1:
             await canal.send(texto + " como está se sentindo hoje?")
 
+        print('Aviso Humor: Definir aviso como endiado...')
         await self.service.task_informe_humor_adicionar()
     
 
