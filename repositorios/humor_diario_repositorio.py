@@ -1,11 +1,10 @@
-import datetime
-
 from database import HumorDiario
+from utilidades.data import *
 
 class humor_diario_repositorio:
 
     def adicionar(self, idDiscord):
-        hoje = datetime.date.today()
+        hoje = data.hoje()
         humor = self.obter_por_id(idDiscord)
 
         if humor is not None:

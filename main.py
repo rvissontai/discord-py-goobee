@@ -1,4 +1,3 @@
-import os
 import discord
 
 from settings import *
@@ -13,7 +12,7 @@ iniciar_database()
 @bot.event
 async def on_ready():
     bot.load_extension("cogs.goobee_teams_cog")
-
+    
     print('Bot goobee está pronto.')
 
     await bot.change_presence(activity=discord.Game(name="jogo da vida"))

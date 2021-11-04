@@ -1,4 +1,3 @@
-import datetime
 import discord
 
 from discord.utils import get
@@ -8,7 +7,7 @@ from servicos.goobee_teams_servico import goobee_teams_servico
 from comum.enum.enum_sentimento import sentimento
 from comum.enum.enum_humor_response import humor_response
 from comum.enum.enum_daily_response import daily_response
-from utilidades.data import data
+from utilidades.data import data, data_e_hora
 
 class goobee_teams(commands.Cog):
     def __init__(self, bot):
@@ -29,7 +28,7 @@ class goobee_teams(commands.Cog):
     async def aviso_informe_humor(self):
         print('Aviso Humor: Iniciando task...')
 
-        if data.agora().hour < 14:
+        if data_e_hora.agora().hour < 14:
             print('Aviso Humor: Ainda não são 14h...')
             return
 
@@ -39,7 +38,7 @@ class goobee_teams(commands.Cog):
             print('Aviso Humor: Task já executada...')
             return
 
-        dia_da_semana = datetime.datetime.today().weekday()
+        dia_da_semana = data.hoje().weekday()
         sexta_feira = 4
 
         if dia_da_semana > sexta_feira:
