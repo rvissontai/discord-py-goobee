@@ -12,6 +12,7 @@ iniciar_database()
 @bot.event
 async def on_ready():
     bot.load_extension("cogs.goobee_teams_cog")
+    bot.load_extension("cogs.lerolero_cog")
     
     print('Bot goobee está pronto.')
 
