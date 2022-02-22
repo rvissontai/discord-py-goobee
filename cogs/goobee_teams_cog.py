@@ -51,7 +51,7 @@ class goobee_teams(commands.Cog):
         texto = ''
         usuarios = await self.service.obter_usuarios_que_nao_informaram_humor()
 
-        print('Aviso Humor: Busca realizando, validando quantidae...')
+        print('Aviso Humor: Validando quantidade...')
         if usuarios is None or len(usuarios) == 0:
             await self.service.task_informe_humor_adicionar()
             return
@@ -79,6 +79,30 @@ class goobee_teams(commands.Cog):
         print('Aviso Humor: Definir aviso como endiado...')
         await self.service.task_informe_humor_adicionar()
     
+
+    @tasks.loop(seconds=300.0)
+    async def aviso_informe_daily(self):
+        print('Aviso Daily: Iniciando task...')
+
+        if data_e_hora.agora().hour < 11:
+            print('Aviso Daily: Ainda não são 11h...')
+            return
+
+        executou_hoje = await self.service.task_informe_daily_executou_hoje()
+
+        if(executou_hoje):
+            print('Aviso Daily: Task já executada...')
+            return
+
+        dia_da_semana = data.hoje().weekday()
+        sexta_feira = 4
+
+        if dia_da_semana > sexta_feira:
+            print('Aviso Daily: É final de semana...')
+            await self.service.task_informe_humor_adicionar()
+            return
+
+        await self.service.task_informe_humor_adicionar()
 
     @commands.command(pass_context=True)
     async def login(self, ctx, arg):
