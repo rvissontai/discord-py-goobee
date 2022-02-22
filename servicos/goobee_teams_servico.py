@@ -4,6 +4,7 @@ import os
 
 from database import Usuarios
 from discord.utils import get
+from repositorios.task_informe_daily_repositorio import task_informe_daily_repositorio
 from utilidades.data import data, data_e_hora
 from utilidades.parser_helper_util import string_para_base64, encontrar_canal_padrao
 
@@ -25,6 +26,7 @@ class goobee_teams_servico():
         self.url_backlog = url + os.getenv('GOOBEE-ENDPOINT-BACKLOG-OBTER')
         self.humor_diario_repositorio = humor_diario_repositorio()
         self.task_informe_humor_repositorio = task_informe_humor_repositorio()
+        self.task_informe_daily_repositorio = task_informe_daily_repositorio()
 
 
     async def autenticar(self, user, senha):
@@ -276,3 +278,12 @@ class goobee_teams_servico():
             if(response.status_code == 200):
                 sucesso_response = json.loads(response.text)
                 return sucesso_response["resultado"]
+
+
+    async def task_informe_daily_executou_hoje(self):
+        model = self.task_informe_daily_repositorio.obter_hoje()
+
+        if model is None:
+            return False
+
+        return True
