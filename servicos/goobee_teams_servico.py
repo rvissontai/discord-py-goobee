@@ -1,6 +1,8 @@
+from urllib import response
 import requests
 import json
 import os
+from comum.enum.enum_verificar_daily_response import verificar_daily_response
 
 from database import Usuarios
 from discord.utils import get
@@ -12,6 +14,7 @@ from comum.enum.enum_daily_response import daily_response
 
 from repositorios.humor_diario_repositorio import humor_diario_repositorio
 from repositorios.task_informe_humor_repositorio import task_informe_humor_repositorio
+from repositorios.task_informe_daily_repositorio import task_informe_daily_repositorio
 
 class goobee_teams_servico():
     def __init__(self, bot):
@@ -25,6 +28,7 @@ class goobee_teams_servico():
         self.url_backlog = url + os.getenv('GOOBEE-ENDPOINT-BACKLOG-OBTER')
         self.humor_diario_repositorio = humor_diario_repositorio()
         self.task_informe_humor_repositorio = task_informe_humor_repositorio()
+        self.task_informe_daily_repositorio = task_informe_daily_repositorio()
 
 
     async def autenticar(self, user, senha):
@@ -96,7 +100,7 @@ class goobee_teams_servico():
         return model["idSentimentoPessoa"]
 
 
-    async def realizar_daily(self, idDiscord) :
+    async def realizar_daily(self, idDiscord):
         try:
             user = Usuarios.get(Usuarios.idDiscord == idDiscord)
             response = await self.autenticar(user.login, user.senha)
@@ -115,6 +119,7 @@ class goobee_teams_servico():
                 response = requests.post(self.url_daily, json=param, headers=header)
 
                 if(response.status_code == 200):
+                    self.task_informe_daily_repositorio.adicionar()
                     return daily_response.sucesso
 
                 return daily_response.erro_realizar_daily
@@ -126,6 +131,32 @@ class goobee_teams_servico():
         except Exception as e:
             print(e)
             return daily_response.erro_realizar_daily
+
+
+    async def verificar_daily(self):
+        user = Usuarios.get(Usuarios.idDiscord == '765610511655108611')
+        response = await self.autenticar(user.login, user.senha)
+
+        if(response.status_code != 200):
+            return { 'status': verificar_daily_response.erro_autenticacao, 'realizada': None }
+
+        sucesso_response = json.loads(response.text)
+        id_time = sucesso_response["idsTimes"][0]
+
+        response = requests.get(
+            os.getenv('GOOBEE-URL') + '/api/PraticaAgil/PegarConfiguracaoDaily/' + id_time, 
+            params={},
+            headers= { 'Authorization': 'Bearer ' + sucesso_response["token"] })
+
+        if response.status_code != 200:
+            return { 'status': verificar_daily_response.erro_verificar_daily, 'realizada': None }
+
+        model = json.loads(response.text)
+
+        if model["realizada"] is None:
+            return None
+
+        return { 'status': verificar_daily_response.sucesso, 'realizada': model["realizada"]}
 
 
     async def encriptar_autenticacao(self, login, password):
@@ -262,6 +293,23 @@ class goobee_teams_servico():
 
         return texto
 
+
+    async def task_informe_daily_executou_hoje(self):
+        model = self.task_informe_daily_repositorio.obter_hoje()
+
+        if model is not None:
+            return True
+
+        response = await self.verificar_daily()
+
+        if response["status"] != verificar_daily_response.sucesso:
+            return
+
+        return response["realizada"]
+
+
+    async def task_informe_daily_adicionar(self):
+        self.task_informe_daily_repositorio.adicionar()
 
     async def obter_backlog(self, id_time):
         user = Usuarios.get()

@@ -11,6 +11,8 @@ def iniciar_database():
 
         TaskInformeHumor.create_table()
 
+        TaskInformeDaily.create_table()
+
         print("Banco de dados está pronto.")
     except peewee.OperationalError:
         print("Não foi possível iniciar o banco!")
