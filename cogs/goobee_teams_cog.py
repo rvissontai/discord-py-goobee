@@ -1,7 +1,9 @@
+from distutils.dir_util import copy_tree
 import discord
 
 from discord.utils import get
 from discord.ext import commands, tasks
+from comum.enum.enum_verificar_daily_response import verificar_daily_response
 from entidades.usuarios_model import Usuarios
 from servicos.goobee_teams_servico import goobee_teams_servico
 from comum.enum.enum_sentimento import sentimento
@@ -14,14 +16,15 @@ class goobee_teams(commands.Cog):
         self.bot = bot
         self.service = goobee_teams_servico(self.bot)
         self.aviso_informe_humor.start()
-        self.atualizar_backlog_presence.start()
+        self.aviso_informe_daily.start()
+        #self.atualizar_backlog_presence.start()
         
 
-    @tasks.loop(seconds=43200.0)
-    async def atualizar_backlog_presence(self):
-        backlog = await self.service.obter_backlog('449fa100-1e77-46da-a755-67a3519e5923')
+    # @tasks.loop(seconds=43200.0)
+    # async def atualizar_backlog_presence(self):
+    #     backlog = await self.service.obter_backlog('449fa100-1e77-46da-a755-67a3519e5923')
 
-        await self.bot.change_presence(activity=discord.Game(name="Backlog: " + backlog))
+    #     await self.bot.change_presence(activity=discord.Game(name="Backlog: " + backlog))
 
 
     @tasks.loop(seconds=300.0)
@@ -38,10 +41,7 @@ class goobee_teams(commands.Cog):
             print('Aviso Humor: Task já executada...')
             return
 
-        dia_da_semana = data.hoje().weekday()
-        sexta_feira = 4
-
-        if dia_da_semana > sexta_feira:
+        if data.final_de_semana():
             print('Aviso Humor: É final de semana...')
             await self.service.task_informe_humor_adicionar()
             return
@@ -80,18 +80,53 @@ class goobee_teams(commands.Cog):
         await self.service.task_informe_humor_adicionar()
     
 
+    @tasks.loop(seconds=300.0)
+    async def aviso_informe_daily(self):
+        if data_e_hora.agora().hour < 11:
+            return
+
+        daily_realizada = await self.service.task_informe_daily_executou_hoje()
+
+        if daily_realizada:
+            return
+
+        if data.final_de_semana():
+            await self.service.task_informe_daily_adicionar()
+            return    
+
+        usuarios = Usuarios.select()
+        ninguem_online = True
+
+        for user in usuarios:
+            member = get(self.bot.get_all_members(), id=int(user.idDiscord))
+
+            if member is None:
+                continue
+
+            if member.desktop_status.value != 'offline' or member.mobile_status.value != 'offline':
+                ninguem_online = False
+                break
+
+        if ninguem_online:
+            await self.service.task_informe_daily_adicionar()
+            return    
+
+        canal = await self.service.encontrar_canal('Alcateia')
+
+        if canal is None:
+            return
+
+        await self.service.task_informe_daily_adicionar()
+        await canal.send('Dúvido que não teve daily hoje')
+
+
+
     @commands.command(pass_context=True)
     async def login(self, ctx, arg):
         user = Usuarios.get(Usuarios.idDiscord == arg)
         response = await self.service.autenticar(user.login, user.senha)
         
         await ctx.send(str(response.text))
-
-
-    @commands.command(pass_context=True)
-    async def info(self, ctx, arg):
-        user = Usuarios.get(Usuarios.idDiscord == arg)
-        await ctx.send('Login: ' + str(user.login) + ' | Senha: ' + str(user.senha))
 
     @commands.command(pass_context=True, aliases=['f', 'F'])
     async def feliz(self, ctx):

@@ -8,6 +8,17 @@ class data:
         agora = data_e_hora.agora()
         return datetime(agora.year, agora.month, agora.day)
 
+
+    @staticmethod
+    def final_de_semana():
+        dia_da_semana = data.hoje().weekday()
+        sexta_feira = 4
+
+        if dia_da_semana > sexta_feira:
+            return True
+        
+        return False
+
 class data_e_hora:
 
     @staticmethod
