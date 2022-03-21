@@ -15,6 +15,7 @@ from comum.enum.enum_daily_response import daily_response
 from repositorios.humor_diario_repositorio import humor_diario_repositorio
 from repositorios.task_informe_humor_repositorio import task_informe_humor_repositorio
 from repositorios.task_informe_daily_repositorio import task_informe_daily_repositorio
+from repositorios.log_humor_repositorio import log_humor_repositorio
 
 class goobee_teams_servico():
     def __init__(self, bot):
@@ -29,6 +30,7 @@ class goobee_teams_servico():
         self.humor_diario_repositorio = humor_diario_repositorio()
         self.task_informe_humor_repositorio = task_informe_humor_repositorio()
         self.task_informe_daily_repositorio = task_informe_daily_repositorio()
+        self.log_humor_repositorio = log_humor_repositorio()
 
 
     async def autenticar(self, user, senha):
