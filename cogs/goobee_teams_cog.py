@@ -117,8 +117,7 @@ class goobee_teams(commands.Cog):
             return
 
         await self.service.task_informe_daily_adicionar()
-        await canal.send('Dúvido que não teve daily hoje')
-
+        await canal.send('@Lobo dúvido que não teve daily hoje')
 
 
     @commands.command(pass_context=True)
