@@ -47,6 +47,11 @@ def string_para_base64(texto):
     
     return base64_bytes.decode("ascii")
 
+def base64_para_string(texto):
+    base64_bytes = base64.b64decode(texto)
+    
+    return base64_bytes.decode("ascii")
+
 def encontrar_canal_padrao(bot, guild_nome):
     guild = discord.utils.get(bot.guilds, name=guild_nome)
     canal = discord.utils.get(guild.text_channels, name="amoux")

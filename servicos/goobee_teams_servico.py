@@ -7,7 +7,7 @@ from comum.enum.enum_verificar_daily_response import verificar_daily_response
 from database import Usuarios
 from discord.utils import get
 from utilidades.data import data, data_e_hora
-from utilidades.parser_helper_util import string_para_base64, encontrar_canal_padrao
+from utilidades.parser_helper_util import string_para_base64, encontrar_canal_padrao, base64_para_string
 
 from comum.enum.enum_humor_response import humor_response
 from comum.enum.enum_daily_response import daily_response
@@ -16,6 +16,13 @@ from repositorios.humor_diario_repositorio import humor_diario_repositorio
 from repositorios.task_informe_humor_repositorio import task_informe_humor_repositorio
 from repositorios.task_informe_daily_repositorio import task_informe_daily_repositorio
 from repositorios.log_humor_repositorio import log_humor_repositorio
+
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 class goobee_teams_servico():
     def __init__(self, bot):
@@ -40,21 +47,21 @@ class goobee_teams_servico():
     async def add_humor(self, idDiscord, id_sentimento):
         try:
             user = Usuarios.get(Usuarios.idDiscord == idDiscord)
-            response = await self.autenticar(user.login, user.senha)
+            response = await self.teste_obter_token(user.login, user.senha)
             
-            if(response.status_code != 200 or response.ok is not True):
-                return humor_response.erro_autenticacao
+            # if(response.status_code != 200 or response.ok is not True):
+            #     return humor_response.erro_autenticacao
             
-            sucesso_response = json.loads(response.text)
+            # sucesso_response = json.loads(response.text)
 
-            header = { 'Authorization': 'Bearer ' + sucesso_response["token"] }
+            header = { 'Authorization': 'Bearer ' + response["token"] }
 
-            sentimento_diario_response = await self.obter_sentimento_diario(sucesso_response["token"], sucesso_response["idPessoa"])
+            sentimento_diario_response = await self.obter_sentimento_diario(response["token"], response["idPessoa"])
 
             if sentimento_diario_response is None:
                 param = {
-                    'idPessoa': sucesso_response["idPessoa"],
-                    'idResponsavelCriacao': sucesso_response["id"],
+                    'idPessoa': response["idPessoa"],
+                    'idResponsavelCriacao': response["id"],
                     'sentimento': id_sentimento
                 }
 
@@ -62,7 +69,7 @@ class goobee_teams_servico():
             else:
                 param = {
                     'idSentimentoPessoa': sentimento_diario_response,
-                    'idResponsavelCriacao': sucesso_response["id"],
+                    'idResponsavelCriacao': response["id"],
                     'sentimento': id_sentimento
                 }
 
@@ -166,78 +173,80 @@ class goobee_teams_servico():
             "login": string_para_base64(login),
             "password": string_para_base64(password)
         };
-        # user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36"
+        
+    async def teste_obter_token(self, login, password):
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36"
 
-        # options = webdriver.ChromeOptions()
-        # options.headless = True
-        # options.add_argument(f'user-agent={user_agent}')
-        # options.add_argument("--window-size=1366,768")
-        # options.add_argument('--ignore-certificate-errors')
-        # options.add_argument('--allow-running-insecure-content')
-        # options.add_argument("--disable-extensions")
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        options.add_argument(f'user-agent={user_agent}')
+        options.add_argument("--window-size=1366,768")
+        options.add_argument('--ignore-certificate-errors')
+        options.add_argument('--allow-running-insecure-content')
+        options.add_argument("--disable-extensions")
         # options.add_argument("--proxy-server='direct://'")
         # options.add_argument("--proxy-bypass-list=*")
         # options.add_argument("--start-maximized")
-        # options.add_argument('--disable-gpu')
-        # options.add_argument('--disable-dev-shm-usage')
-        # options.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--no-sandbox')
 
-        # caps = DesiredCapabilities.CHROME
-        # caps['goog:loggingPrefs'] = {'performance': 'ALL'}
+        caps = DesiredCapabilities.CHROME
+        caps['goog:loggingPrefs'] = {'performance': 'ALL'}
 
-        # driver = webdriver.Chrome(executable_path="chromedriver.exe", options=options, desired_capabilities=caps)
+        driver = webdriver.Chrome(executable_path="chromedriver.exe", options=options, desired_capabilities=caps)
 
-        # driver.get('https://teams.goobee.com.br/login')
+        driver.get('https://app.beefor.io/login')
         
-        # input_email = driver.find_element_by_id("mat-input-0")
-        # input_password = driver.find_element_by_id("mat-input-1")
-        # button_login = driver.find_element_by_class_name("submit-button")
+        input_email = driver.find_element_by_css_selector("input[formcontrolname=\"email\"")
+        input_senha = driver.find_element_by_css_selector("input[formcontrolname=\"senha\"")
+        button_login = driver.find_element_by_css_selector("button[type=\"submit\"")
 
-        # input_email.send_keys(user)
-        # input_password.send_keys(password)
+        input_email.send_keys(login)
+        input_senha.send_keys(password)
 
-        # button_login.click()
+        button_login.click()
 
-        # logs = driver.get_log("performance")
+        try:
+            element_present = EC.presence_of_element_located((By.ID, 'focusNavigatorMenuPerfil'))
+            WebDriverWait(driver, timeout=10).until(element_present)
+        except TimeoutException:
+            return False
 
-        # try:
-        #     return await self.process_browser_logs_for_network_events(logs)
-        # except Exception as ex:
-        #     print(ex)
+        logs = driver.get_log("performance")
 
+        try:
+            return await self.process_browser_logs_for_network_events(logs, driver)
+        except Exception as ex:
+            print(ex)
 
-    # async def process_browser_logs_for_network_events(self, logs):
-    #     result = {}
-    #     for entry in logs:
-    #         log = json.loads(entry["message"])["message"]
+        driver.quit()
 
-    #         if log["method"] != "Network.requestWillBeSent":
-    #             continue
+    async def process_browser_logs_for_network_events(self, logs, driver):
+        result = {}
 
-    #         if "params" not in log:
-    #             continue
+        for entry in logs:
+            log = json.loads(entry["message"])["message"]
 
-    #         if "request" not in log["params"]:
-    #             continue
+            if log["method"] != "Network.responseReceived":
+                continue
 
-    #         if "postData" not in log["params"]["request"]:
-    #             continue
+            if "params" not in log or "response" not in log["params"]:
+                continue
 
-    #         postData = log["params"]["request"]["postData"]
+            rep = log["params"]["response"]
+            url = rep["url"]
 
-    #         if "usuario" not in postData or "senha" not in postData:
-    #             continue
+            if url.endswith("Token") == False:
+                continue
 
-    #         jsonUser = json.loads(postData)
+            try:
+                response_body = driver.execute_cdp_cmd('Network.getResponseBody', {'requestId': log["params"]["requestId"]})
+                return json.loads(response_body["body"])
+            except:
+                pass
 
-    #         result = {
-    #             'login': jsonUser["usuario"],
-    #             'password': jsonUser["senha"]
-    #         }
-
-    #         break
-
-    #     return result
+        return result
         
     async def encontrar_canal(self, guild_nome):
         canal = encontrar_canal_padrao(self.bot, guild_nome)
