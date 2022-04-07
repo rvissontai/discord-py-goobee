@@ -1,4 +1,3 @@
-from urllib import response
 import requests
 import json
 import os
@@ -182,7 +181,7 @@ class goobee_teams_servico():
 
         if os.environ.get('GOOGLE_CHROME_BIN') is not None:
             options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
-            
+
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-gpu')
