@@ -15,16 +15,16 @@ class goobee_teams(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.service = goobee_teams_servico(self.bot)
-        self.aviso_informe_humor.start()
-        self.aviso_informe_daily.start()
+        #self.aviso_informe_humor.start()
+        #self.aviso_informe_daily.start()
         #self.atualizar_backlog_presence.start()
         
 
-    # @tasks.loop(seconds=43200.0)
-    # async def atualizar_backlog_presence(self):
-    #     backlog = await self.service.obter_backlog('449fa100-1e77-46da-a755-67a3519e5923')
+    @tasks.loop(seconds=43200.0)
+    async def atualizar_backlog_presence(self):
+        backlog = await self.service.obter_backlog('449fa100-1e77-46da-a755-67a3519e5923')
 
-    #     await self.bot.change_presence(activity=discord.Game(name="Backlog: " + backlog))
+        await self.bot.change_presence(activity=discord.Game(name="Backlog: " + backlog))
 
 
     @tasks.loop(seconds=300.0)
@@ -121,11 +121,11 @@ class goobee_teams(commands.Cog):
 
 
     @commands.command(pass_context=True)
-    async def login(self, ctx, arg):
-        user = Usuarios.get(Usuarios.idDiscord == arg)
-        response = await self.service.autenticar(user.login, user.senha)
+    async def login(self, ctx):
+        user = Usuarios.get(Usuarios.idDiscord == ctx.author.id)
+        response = await self.service.teste_obter_token(user.login, user.senha)
         
-        await ctx.send(str(response.text))
+        await ctx.send(str(response))
 
     @commands.command(pass_context=True, aliases=['f', 'F'])
     async def feliz(self, ctx):
