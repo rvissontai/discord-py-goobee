@@ -179,22 +179,22 @@ class goobee_teams_servico():
 
         options = webdriver.ChromeOptions()
         options.headless = True
-        options.add_argument(f'user-agent={user_agent}')
-        options.add_argument("--window-size=1366,768")
-        options.add_argument('--ignore-certificate-errors')
-        options.add_argument('--allow-running-insecure-content')
-        options.add_argument("--disable-extensions")
-        # options.add_argument("--proxy-server='direct://'")
-        # options.add_argument("--proxy-bypass-list=*")
-        # options.add_argument("--start-maximized")
-        options.add_argument('--disable-gpu')
+
+        if os.environ.get('GOOGLE_CHROME_BIN') is not None:
+            options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
+            
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+        options.add_argument("--disable-extensions")
+        options.add_argument(f'user-agent={user_agent}')
+        options.add_argument('--ignore-certificate-errors')
+        options.add_argument('--allow-running-insecure-content')
 
         caps = DesiredCapabilities.CHROME
         caps['goog:loggingPrefs'] = {'performance': 'ALL'}
 
-        driver = webdriver.Chrome(executable_path="chromedriver.exe", options=options, desired_capabilities=caps)
+        driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options, desired_capabilities=caps)
 
         driver.get('https://app.beefor.io/login')
         
@@ -223,8 +223,6 @@ class goobee_teams_servico():
         driver.quit()
 
     async def process_browser_logs_for_network_events(self, logs, driver):
-        result = {}
-
         for entry in logs:
             log = json.loads(entry["message"])["message"]
 
@@ -246,7 +244,7 @@ class goobee_teams_servico():
             except:
                 pass
 
-        return result
+        return {}
         
     async def encontrar_canal(self, guild_nome):
         canal = encontrar_canal_padrao(self.bot, guild_nome)
