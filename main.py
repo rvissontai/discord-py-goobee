@@ -5,9 +5,6 @@ from discord.ext import commands
 from database import iniciar_database 
 from servicos.dm_servico import dm_servico
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-
 bot = commands.Bot(command_prefix = ["?", "."], intents=discord.Intents().all())
 
 iniciar_database()
